@@ -10,6 +10,7 @@
 #include <vector>
 
 // serialize primitive vector to output stream
+// plaintext
 template <class T>
 void write_vector(std::ostream &s, const std::vector<T> &data) {
   std::ostream_iterator<T> osi{s, " "};
@@ -17,6 +18,7 @@ void write_vector(std::ostream &s, const std::vector<T> &data) {
 }
 
 // read primitive vector from input stream
+// plaintext
 template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
   std::istream_iterator<T> iter(s);
   std::copy(iter, std::istream_iterator<T>{}, std::back_inserter(data));
@@ -50,7 +52,7 @@ void test() {
 
   std::vector<uint64_t> vec1{};
 
-  std::string path{"vec.out"};
+  const std::string path{"vec.out"};
 
   std::cout << "n: " << num << '\n';
   std::cout << "bytes: " << num * sizeof(uint64_t) << '\n';
