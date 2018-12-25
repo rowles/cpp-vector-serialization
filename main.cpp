@@ -60,7 +60,7 @@ void timeit(std::function<void()> const &fn, const size_t num) {
       std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
   const float ops = (float)num / elapsed.count();
-  std::cout << elapsed.count() << "us " << ops << " op/s\n";
+  std::cout << elapsed.count() << "us " << ops << " op/us\n";
 }
 
 void test() {
