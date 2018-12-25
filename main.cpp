@@ -22,25 +22,24 @@ template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
   std::istream_iterator<T> iter(s);
   std::copy(iter, std::istream_iterator<T>{}, std::back_inserter(data));
 }
-}
+} // namespace plaintext
 
 namespace binary {
 template <class T>
 void write_vector(std::ostream &s, const std::vector<T> &data) {
   const auto len = data.size();
 
-  s.write(reinterpret_cast<const char*>(&len), sizeof(len));
-  s.write(reinterpret_cast<const char*>(&data[0]), len*sizeof(T));
+  s.write(reinterpret_cast<const char *>(&len), sizeof(len));
+  s.write(reinterpret_cast<const char *>(&data[0]), len * sizeof(T));
 }
 
-template <class T>
-void read_vector(std::ifstream &s, std::vector<T> &data) {
+template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
   size_t len = 0;
   s.read(reinterpret_cast<char *>(&len), sizeof(size_t));
   data.resize(len);
-  s.read(reinterpret_cast<char *>(&data[0]), sizeof(T) * len); 
+  s.read(reinterpret_cast<char *>(&data[0]), sizeof(T) * len);
 }
-}
+} // namespace binary
 
 template <class T> void print_vec(const std::vector<T> &vec) {
   std::cout << "------------------------------\n";
