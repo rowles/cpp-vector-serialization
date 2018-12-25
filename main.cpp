@@ -9,8 +9,8 @@
 #include <string>
 #include <vector>
 
+namespace plaintext {
 // serialize primitive vector to output stream
-// plaintext
 template <class T>
 void write_vector(std::ostream &s, const std::vector<T> &data) {
   std::ostream_iterator<T> osi{s, " "};
@@ -18,10 +18,28 @@ void write_vector(std::ostream &s, const std::vector<T> &data) {
 }
 
 // read primitive vector from input stream
-// plaintext
 template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
   std::istream_iterator<T> iter(s);
   std::copy(iter, std::istream_iterator<T>{}, std::back_inserter(data));
+}
+}
+
+namespace binary {
+template <class T>
+void write_vector(std::ostream &s, const std::vector<T> &data) {
+  const auto len = data.size();
+
+  s.write(reinterpret_cast<const char*>(&len), sizeof(len));
+  s.write(reinterpret_cast<const char*>(&data[0]), len*sizeof(T));
+}
+
+template <class T>
+void read_vector(std::ifstream &s, std::vector<T> &data) {
+  size_t len = 0;
+  s.read(reinterpret_cast<char *>(&len), sizeof(size_t));
+  data.resize(len);
+  s.read(reinterpret_cast<char *>(&data[0]), sizeof(T) * len); 
+}
 }
 
 template <class T> void print_vec(const std::vector<T> &vec) {
@@ -61,7 +79,7 @@ void test() {
   std::ofstream ofs{path, std::ios::binary | std::ios::out};
 
   // write partial
-  const auto do_write = [&]() -> void { write_vector(ofs, vec0); };
+  const auto do_write = [&]() -> void { binary::write_vector(ofs, vec0); };
 
   std::cout << "write: ";
   timeit(do_write, num);
@@ -71,7 +89,7 @@ void test() {
   std::ifstream ifs{path, std::ios::binary | std::ios::in};
 
   // read partial
-  const auto do_read = [&]() -> void { read_vector(ifs, vec1); };
+  const auto do_read = [&]() -> void { binary::read_vector(ifs, vec1); };
 
   std::cout << "read: ";
   timeit(do_read, num);
