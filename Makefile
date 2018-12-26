@@ -7,7 +7,7 @@ clean:
 	rm -f test
 
 build:
-	clang++ -std=c++17 -O3 main.cpp -o test
+	clang++ -std=c++17 -O3 -Wall main.cpp -o test
 
 run: build
 	./test

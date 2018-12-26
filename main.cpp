@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+// serialize primative vector to plaintext
 namespace plaintext {
 // serialize primitive vector to output stream
 template <class T>
@@ -24,6 +25,7 @@ template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
 }
 } // namespace plaintext
 
+// serialize primative vector
 namespace binary {
 template <class T>
 void write_vector(std::ostream &s, const std::vector<T> &data) {
@@ -41,6 +43,7 @@ template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
 }
 } // namespace binary
 
+// serialize string vector
 namespace binstr {
 
 void write_vector(std::ostream &s, const std::vector<std::string> &data) {
@@ -75,6 +78,7 @@ void read_vector(std::ifstream &s, std::vector<std::string> &data) {
 
 } // namespace binstr
 
+// debug print vector
 template <class T> void print_vec(const std::vector<T> &vec) {
   std::cout << "------------------------------\n";
   for (const auto &e : vec)
@@ -85,6 +89,7 @@ template <class T> void print_vec(const std::vector<T> &vec) {
   std::cout << "sizeof(vec): " << std::to_string(cap) << "\n";
 }
 
+// time operation helper
 void timeit(std::function<void()> const &fn, const size_t num) {
   const auto start = std::chrono::system_clock::now();
   fn();
@@ -96,6 +101,7 @@ void timeit(std::function<void()> const &fn, const size_t num) {
   std::cout << elapsed.count() << "us " << ops << " op/us\n";
 }
 
+// test primative vector serialization
 void test() {
   const auto num = 1'000;
   std::vector<uint64_t> vec0(num);
@@ -111,25 +117,20 @@ void test() {
   // write vector
   std::ofstream ofs{path, std::ios::binary | std::ios::out};
 
-  // write partial
-  const auto do_write = [&]() -> void { binary::write_vector(ofs, vec0); };
-
   std::cout << "write: ";
-  timeit(do_write, num);
+  timeit([&]() -> void { binary::write_vector(ofs, vec0); }, num);
   ofs.close();
 
   // read vector
   std::ifstream ifs{path, std::ios::binary | std::ios::in};
 
-  // read partial
-  const auto do_read = [&]() -> void { binary::read_vector(ifs, vec1); };
-
   std::cout << "read: ";
-  timeit(do_read, num);
+  timeit([&]() -> void { binary::read_vector(ifs, vec1); }, num);
 
   assert(vec0 == vec1);
 }
 
+// test string vector serialization
 void test_str() {
   const auto num = 4;
   std::vector<std::string> vec0 = {"abc", "xyz012", "0123456789", "7654321"};
@@ -139,21 +140,16 @@ void test_str() {
 
   // write vector
   std::ofstream ofs{path, std::ios::binary | std::ios::out};
-  //
-  // // write partial
-  const auto do_write = [&]() -> void { binstr::write_vector(ofs, vec0); };
-  //
+
   std::cout << "write: ";
-  timeit(do_write, num);
+  timeit([&]() -> void { binstr::write_vector(ofs, vec0); }, num);
   ofs.close();
 
   // read vector
   std::ifstream ifs{path, std::ios::binary | std::ios::in};
 
-  const auto do_read = [&]() -> void { binstr::read_vector(ifs, vec1); };
-
   std::cout << "read: ";
-  timeit(do_read, num);
+  timeit([&]() -> void { binstr::read_vector(ifs, vec1); }, num);
 
   assert(vec0 == vec1);
   // print_vec(vec0);
