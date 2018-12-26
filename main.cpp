@@ -46,7 +46,7 @@ template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
 // serialize string vector
 namespace binstr {
 
-void write_vector(std::ostream &s, const std::vector<std::string> &data) {
+void write_vector(std::ofstream &s, const std::vector<std::string> &data) {
   const auto veclen = data.size();
 
   s.write(reinterpret_cast<const char *>(&veclen), sizeof(veclen));
@@ -68,11 +68,8 @@ void read_vector(std::ifstream &s, std::vector<std::string> &data) {
     auto len = std::size_t{0};
     s.read(reinterpret_cast<char *>(&len), sizeof(std::size_t));
 
-    std::string st;
-    st.resize(len);
-    s.read(reinterpret_cast<char *>(&st[0]), sizeof(char) * len);
-
-    data[i] = st;
+    data[i].resize(len);
+    s.read(reinterpret_cast<char *>(&data[i][0]), sizeof(char) * len);
   }
 }
 
@@ -97,13 +94,13 @@ void timeit(std::function<void()> const &fn, const size_t num) {
   const auto elapsed =
       std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-  const float ops = (float) num / elapsed.count();
+  const float ops = (float)num / elapsed.count();
   std::cout << elapsed.count() << "us " << ops << " op/us\n";
 }
 
 // test primative vector serialization
 void test() {
-  const auto num = 1'000;
+  const auto num = 100'000;
   std::vector<uint64_t> vec0(num);
   std::iota(vec0.begin(), vec0.end(), 0);
 
@@ -156,9 +153,8 @@ void test_str() {
   // print_vec(vec1);
 }
 
-int main()
-{
-  std::cout << "------ vec[uint64_t]\n";
+int main() {
+  std::cout << "------ vec[std::uint64_t]\n";
   test();
   std::cout << "------ vec[std::string]\n";
   test_str();
