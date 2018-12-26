@@ -41,10 +41,44 @@ template <class T> void read_vector(std::ifstream &s, std::vector<T> &data) {
 }
 } // namespace binary
 
+namespace binstr {
+
+void write_vector(std::ostream &s, const std::vector<std::string> &data) {
+  const auto veclen = data.size();
+
+  s.write(reinterpret_cast<const char *>(&veclen), sizeof(veclen));
+
+  for (const auto &d : data) {
+    const auto len = d.size();
+    s.write(reinterpret_cast<const char *>(&len), sizeof(len));
+    s.write(&d[0], sizeof(char) * len);
+  }
+}
+
+void read_vector(std::ifstream &s, std::vector<std::string> &data) {
+  auto veclen = std::size_t{0};
+  s.read(reinterpret_cast<char *>(&veclen), sizeof(std::size_t));
+
+  data.resize(veclen);
+
+  for (auto i = 0; i < veclen; i++) {
+    auto len = std::size_t{0};
+    s.read(reinterpret_cast<char *>(&len), sizeof(std::size_t));
+
+    std::string st;
+    st.resize(len);
+    s.read(reinterpret_cast<char *>(&st[0]), sizeof(char) * len);
+
+    data[i] = st;
+  }
+}
+
+} // namespace binstr
+
 template <class T> void print_vec(const std::vector<T> &vec) {
   std::cout << "------------------------------\n";
   for (const auto &e : vec)
-    std::cout << std::to_string(e) << "\n";
+    std::cout << e << "\n";
 
   const auto cap = vec.size() * sizeof(T);
   std::cout << "sizeof(T): " << std::to_string(sizeof(T)) << "\n";
@@ -96,7 +130,38 @@ void test() {
   assert(vec0 == vec1);
 }
 
+void test_str() {
+  const auto num = 4;
+  std::vector<std::string> vec0 = {"abc", "xyz012", "0123456789", "7654321"};
+  std::vector<std::string> vec1{};
+
+  const auto path = "vec.out";
+
+  // write vector
+  std::ofstream ofs{path, std::ios::binary | std::ios::out};
+  //
+  // // write partial
+  const auto do_write = [&]() -> void { binstr::write_vector(ofs, vec0); };
+  //
+  std::cout << "write: ";
+  timeit(do_write, num);
+  ofs.close();
+
+  // read vector
+  std::ifstream ifs{path, std::ios::binary | std::ios::in};
+
+  const auto do_read = [&]() -> void { binstr::read_vector(ifs, vec1); };
+
+  std::cout << "read: ";
+  timeit(do_read, num);
+
+  assert(vec0 == vec1);
+  // print_vec(vec0);
+  // print_vec(vec1);
+}
+
 int main() {
-  test();
+  // test();
+  test_str();
   return 0;
 }
