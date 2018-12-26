@@ -97,7 +97,7 @@ void timeit(std::function<void()> const &fn, const size_t num) {
   const auto elapsed =
       std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-  const float ops = (float)num / elapsed.count();
+  const float ops = (float) num / elapsed.count();
   std::cout << elapsed.count() << "us " << ops << " op/us\n";
 }
 
@@ -132,7 +132,7 @@ void test() {
 
 // test string vector serialization
 void test_str() {
-  const auto num = 4;
+  const auto num = 5;
   std::vector<std::string> vec0 = {"abc", "xyz012", "0123456789", "7654321"};
   std::vector<std::string> vec1{};
 
@@ -156,8 +156,11 @@ void test_str() {
   // print_vec(vec1);
 }
 
-int main() {
-  // test();
+int main()
+{
+  std::cout << "------ vec[uint64_t]\n";
+  test();
+  std::cout << "------ vec[std::string]\n";
   test_str();
   return 0;
 }
